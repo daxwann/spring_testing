@@ -3,6 +3,8 @@ package com.amigoscode.testing.customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,5 +30,10 @@ public class CustomerRepositoryTest {
 
     // test
     Optional<Customer> optionalCustomer = testRepository.selectCustomerByPhoneNumber(phoneNumber);
+    assertThat(optionalCustomer)
+        .isPresent()
+        .hasValueSatisfying(c -> {
+          assertThat(c).isEqualToComparingFieldByField(customer);
+        });
   }
 }
