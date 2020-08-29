@@ -13,6 +13,6 @@ public class CustomerRegistrationService {
   }
 
   public void registerNewCustomer(CustomerRegistrationRequest request) {
-    
+
   }
 }
