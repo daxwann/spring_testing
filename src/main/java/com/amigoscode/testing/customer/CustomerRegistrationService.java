@@ -23,8 +23,9 @@ public class CustomerRegistrationService {
     if (customerOptional.isPresent()) {
       Customer customer = customerOptional.get();
       if (customer.getName().equals(request.getCustomer().getName())) {
-        throw new IllegalStateException(String.format("phone number %s is taken", phoneNumber));
+        return;
       }
+      throw new IllegalStateException(String.format("phone number %s is taken", phoneNumber));
     }
 
     if (request.getCustomer().getId() == null) {
