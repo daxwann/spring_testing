@@ -102,4 +102,48 @@ public class PaymentServiceTest {
 
     then(paymentRepository).shouldHaveNoInteractions();
   }
+
+  @Test
+  void itShouldNotChargeCardAndThrowWhenCurrencyNotSupported() {
+    // Given customer exists
+    UUID customerId = UUID.randomUUID();
+    given(customerRepository.findById(customerId)).willReturn(Optional.of(mock(Customer.class)));
+
+    // Payment request with unsupported Euros
+    PaymentRequest paymentRequest = new PaymentRequest(
+        new Payment(
+          null,
+          null,
+          new BigDecimal("100.00"),
+          Currency.EUR,
+          "Card123",
+          "Donation"
+        )
+    );
+
+    // When
+    assertThatThrownBy(() -> testPaymentService.chargeCard(customerId, paymentRequest))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining(Currency.EUR + " not supported");
+
+    // Then
+    then(cardPaymentCharger).shouldHaveNoInteractions();
+    then(paymentRepository).shouldHaveNoInteractions();
+  }
+
+  @Test
+  void itShouldNotChargeAndThrowWhenCustomerNotFound() {
+    // Given
+    UUID customerId = UUID.randomUUID();
+    given(customerRepository.findById(customerId)).willReturn(Optional.empty());
+
+    // When
+    assertThatThrownBy(() -> testPaymentService.chargeCard(customerId, new PaymentRequest(new Payment())))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Customer with id " + customerId + " not found");
+
+    // Then
+    then(cardPaymentCharger).shouldHaveNoInteractions();
+    then(paymentRepository).shouldHaveNoInteractions();
+  }
 }
